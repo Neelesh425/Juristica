@@ -1,0 +1,22 @@
+// ============================================
+// Scrollbar styling
+// ============================================
+.sidebar::-webkit-scrollbar,
+.layout-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.layout-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.layout-content::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+
+  &:hover {
+    background: #999;
+  }
+}
