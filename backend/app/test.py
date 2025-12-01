@@ -1,2 +1,1 @@
-#tst sampl e code
-#ru test
+#run test here
