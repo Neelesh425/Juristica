@@ -1,1 +1,0 @@
-# traning of ai model 
