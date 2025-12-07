@@ -1,6 +1,12 @@
+// src/components/Sidebar/index.jsx
+import { Link, useLocation } from 'react-router-dom';
 import './index.scss';
 
-export default function Sidebar({ isOpen }) {
+export default function Sidebar({ isOpen, onUploadClick }) {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
   return (
     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="sidebar-header">
@@ -13,22 +19,22 @@ export default function Sidebar({ isOpen }) {
           <h3 className="nav-section-title">Main</h3>
           <ul className="nav-list">
             <li className="nav-item">
-              <a href="/dashboard" className="nav-link active">
+              <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
                 <span className="nav-icon">📄</span>
                 {isOpen && <span className="nav-text">Documents</span>}
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a href="/chat" className="nav-link">
+              <Link to="/chat" className={`nav-link ${isActive('/chat') ? 'active' : ''}`}>
                 <span className="nav-icon">💬</span>
                 {isOpen && <span className="nav-text">Chat</span>}
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a href="/history" className="nav-link">
+              <Link to="/history" className={`nav-link ${isActive('/history') ? 'active' : ''}`}>
                 <span className="nav-icon">⏱️</span>
                 {isOpen && <span className="nav-text">History</span>}
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -37,23 +43,23 @@ export default function Sidebar({ isOpen }) {
           <h3 className="nav-section-title">Team</h3>
           <ul className="nav-list">
             <li className="nav-item">
-              <a href="/team" className="nav-link">
+              <Link to="/team" className={`nav-link ${isActive('/team') ? 'active' : ''}`}>
                 <span className="nav-icon">👥</span>
                 {isOpen && <span className="nav-text">Team Members</span>}
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a href="/settings" className="nav-link">
+              <Link to="/settings" className={`nav-link ${isActive('/settings') ? 'active' : ''}`}>
                 <span className="nav-icon">⚙️</span>
                 {isOpen && <span className="nav-text">Settings</span>}
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
       </nav>
 
       <div className="sidebar-footer">
-        <button className="upload-btn">
+        <button className="upload-btn" onClick={onUploadClick}>
           <span className="upload-icon">📤</span>
           {isOpen && <span className="upload-text">Upload Document</span>}
         </button>
