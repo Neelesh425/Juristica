@@ -1,5 +1,5 @@
 // src/pages/DocumentsPage.jsx
-import './DocumentsPage.scss';
+import './index.scss';
 
 export default function DocumentsPage() {
   return (

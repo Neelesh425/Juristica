@@ -1,8 +1,9 @@
-// src/pages/ChatPage.jsx
+// src/pages/ChatPage/index.jsx
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { askQuestion, deleteSession } from '../services/api';
-import './ChatPage.scss';
+import { askQuestion, deleteSession } from '../../services/api';
+
+import './index.scss';
 
 export default function ChatPage() {
   const location = useLocation();

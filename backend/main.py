@@ -7,15 +7,15 @@ import chromadb
 from chromadb.config import Settings
 import PyPDF2
 import docx
-import anthropic
 from io import BytesIO
+import google.generativeai as genai
 
 app = FastAPI()
 
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # React dev servers
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,8 +30,9 @@ chroma_client = chromadb.Client(Settings(
 # Store collections per session
 collections = {}
 
-# Initialize Anthropic client
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+# Initialize Gemini
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 class Question(BaseModel):
     question: str
@@ -78,10 +79,8 @@ def chunk_text(text, chunk_size=1000, overlap=200):
 async def upload_document(file: UploadFile = File(...)):
     """Upload and process a document"""
     try:
-        # Read file content
         content = await file.read()
         
-        # Extract text based on file type
         filename = file.filename.lower()
         if filename.endswith('.pdf'):
             text = extract_text_from_pdf(content)
@@ -95,22 +94,15 @@ async def upload_document(file: UploadFile = File(...)):
         if not text.strip():
             raise HTTPException(status_code=400, detail="No text could be extracted from the document")
         
-        # Chunk the text
         chunks = chunk_text(text)
-        
-        # Create a unique session ID
         session_id = f"session_{len(collections)}"
-        
-        # Create a new ChromaDB collection for this session
         collection = chroma_client.create_collection(name=session_id)
         
-        # Add chunks to collection
         collection.add(
             documents=chunks,
             ids=[f"chunk_{i}" for i in range(len(chunks))]
         )
         
-        # Store collection reference
         collections[session_id] = collection
         
         return UploadResponse(
@@ -129,22 +121,18 @@ async def ask_question(question_data: Question):
         session_id = question_data.session_id
         question = question_data.question
         
-        # Get the collection for this session
         if session_id not in collections:
             raise HTTPException(status_code=404, detail="Session not found. Please upload a document first.")
         
         collection = collections[session_id]
         
-        # Query the collection for relevant chunks
         results = collection.query(
             query_texts=[question],
             n_results=3
         )
         
-        # Get relevant context
         context = "\n\n".join(results['documents'][0])
         
-        # Create prompt for Claude
         prompt = f"""Based on the following context from a document, please answer the question.
 
 Context:
@@ -154,16 +142,9 @@ Question: {question}
 
 Please provide a clear and concise answer based solely on the information in the context. If the answer cannot be found in the context, please say so."""
         
-        # Get response from Claude
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1000,
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        
-        answer = message.content[0].text
+        # Get response from Gemini
+        response = model.generate_content(prompt)
+        answer = response.text
         
         return {
             "answer": answer,

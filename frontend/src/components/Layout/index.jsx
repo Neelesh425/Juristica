@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Sidebar from '../Sidebar';
 import Header from '../Header';
-import UploadModal from '../UploadModal';
+import UploadModal from '../UploadModel';
 import './index.scss';
 
 export default function Layout({ children }) {
